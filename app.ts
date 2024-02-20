@@ -9,7 +9,10 @@ const meter = metrics.getMeter("dice-server", "1.0.1");
 const PORT: number = parseInt(process.env.PORT || "8080");
 const app: Express = express();
 
+const counter = meter.createCounter("roll-dice:count");
+
 app.get("/rolldice", (req, res) => {
+  meter.createCounter("roll-dice:count");
   const rolls = req.query.rolls ? parseInt(req.query.rolls.toString()) : NaN;
   if (isNaN(rolls)) {
     res
@@ -17,6 +20,7 @@ app.get("/rolldice", (req, res) => {
       .send("Request parameter 'rolls' is missing or not a number.");
     return;
   }
+  counter.add(1);
   res.send(JSON.stringify(rollTheDice(rolls, 1, 6)));
 });
 
